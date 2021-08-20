@@ -1,13 +1,22 @@
 import numpy as np
 import math
+import pygame
+from random import randint
 
 class Point:
+    def __init__(self, x, y, xv, yv):
+        self.x = x
+        self.y = y
+        self.x_velocity = xv
+        self.y_velocity = yv
+
+    def draw(self, screen, color=(255,255,255), stroke=1):
+        pygame.draw.circle(screen, color, (self.x, self.y), stroke)
+
+class Center:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
-    def distanceToCenter(self, center):
-        return math.sqrt((center.x-self.x)**2 + (center.y-self.y)**2)
 
 class Rectangle:
     def __init__(self, center, width, height):
@@ -23,20 +32,11 @@ class Rectangle:
         return (self.west <= point.x < self.east and 
                 self.north <= point.y < self.south)
     
-    def intersects(self, range):
-        return not (range.west > self.east or
-                    range.east < self.west or
-                    range.north > self.south or
-                    range.south < self.north)
-    
-
-    def draw(self, ax, c='k', lw=1, **kwargs):
-        x1, y1 = self.west, self.north
-        x2, y2 = self.east, self.south
-        ax.plot([x1,x2,x2,x1,x1], [y1,y1,y2,y2,y1], c=c, lw=lw, **kwargs)
+    def draw(self, screen, color=(255,255,255), stroke=1):
+        pygame.draw.rect(screen, color, pygame.Rect(self.west, self.north, 2*self.width-1, 2*self.height-1), stroke)
 
 class QuadTree:
-    def __init__(self, boundary, capacity = 4):
+    def __init__(self, boundary,  capacity = 2):
         self.boundary = boundary
         self.capacity = capacity
         self.points = []
@@ -49,6 +49,7 @@ class QuadTree:
         
         # if has not reached capcaity
         if len(self.points) < self.capacity:
+            print(point.x, point.y)
             self.points.append(point)
             return True
         
@@ -66,41 +67,6 @@ class QuadTree:
 
         return False
     
-    def queryRange(self, range):
-        found_points = []
-
-        if not self.boundary.intersects(range):
-            return []
-        
-        for point in self.points:
-            if range.containsPoint(point):
-                found_points.append(point)
-        
-        if self.divided:
-            found_points.extend(self.nw.queryRange(range))
-            found_points.extend(self.ne.queryRange(range))
-            found_points.extend(self.sw.queryRange(range))
-            found_points.extend(self.se.queryRange(range))
-        
-        return found_points
-    
-    def queryRadius(self, range, center):
-        found_points = []
-
-        if not self.boundary.intersects(range):
-            return []
-        
-        for point in self.points:
-            if range.containsPoint(point) and point.distanceToCenter(center) <= range.width:
-                found_points.append(point)
-        
-        if self.divided:
-            found_points.extend(self.nw.queryRadius(range, center))
-            found_points.extend(self.ne.queryRadius(range, center))
-            found_points.extend(self.sw.queryRadius(range, center))
-            found_points.extend(self.se.queryRadius(range, center))
-        
-        return found_points
 
     def divide(self):
         center_x = self.boundary.center.x
@@ -108,16 +74,16 @@ class QuadTree:
         new_width = self.boundary.width / 2
         new_height = self.boundary.height / 2
 
-        nw = Rectangle(Point(center_x - new_width, center_y - new_height), new_width, new_height)
+        nw = Rectangle(Center(center_x - new_width, center_y - new_height), new_width, new_height)
         self.nw = QuadTree(nw)
 
-        ne = Rectangle(Point(center_x + new_width, center_y - new_height), new_width, new_height)
+        ne = Rectangle(Center(center_x + new_width, center_y - new_height), new_width, new_height)
         self.ne = QuadTree(ne)
 
-        sw = Rectangle(Point(center_x - new_width, center_y + new_height), new_width, new_height)
+        sw = Rectangle(Center(center_x - new_width, center_y + new_height), new_width, new_height)
         self.sw = QuadTree(sw)
 
-        se = Rectangle(Point(center_x + new_width, center_y + new_height), new_width, new_height)
+        se = Rectangle(Center(center_x + new_width, center_y + new_height), new_width, new_height)
         self.se = QuadTree(se)
 
         self.divided = True
@@ -129,11 +95,11 @@ class QuadTree:
         
         return count
     
-    def draw(self, ax):
-        self.boundary.draw(ax)
+    def draw(self, screen):
+        self.boundary.draw(screen)
 
         if self.divided:
-            self.nw.draw(ax)
-            self.ne.draw(ax)
-            self.se.draw(ax)
-            self.sw.draw(ax)
+            self.nw.draw(screen)
+            self.ne.draw(screen)
+            self.se.draw(screen)
+            self.sw.draw(screen)
