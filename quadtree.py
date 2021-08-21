@@ -13,6 +13,14 @@ class Point:
     def draw(self, screen, color=(255,255,255), stroke=1):
         pygame.draw.circle(screen, color, (self.x, self.y), stroke)
 
+    def move(self, width, height):
+        self.x += self.x_velocity
+        self.y += self.y_velocity
+        if self.x > width or self.x < 0:
+            self.x_velocity = -self.x_velocity
+        if self.y > height or self.y < 0:
+            self.y_velocity = -self.y_velocity
+
 class Center:
     def __init__(self, x, y):
         self.x = x
@@ -41,6 +49,7 @@ class QuadTree:
         self.capacity = capacity
         self.points = []
         self.divided = False
+        self.leaf = True
 
     def insert(self, point):
         # if the point is in the range of current quadTree
@@ -49,7 +58,6 @@ class QuadTree:
         
         # if has not reached capcaity
         if len(self.points) < self.capacity:
-            print(point.x, point.y)
             self.points.append(point)
             return True
         
@@ -87,6 +95,7 @@ class QuadTree:
         self.se = QuadTree(se)
 
         self.divided = True
+        self.leaf = False
 
     def __len__(self):
         count = len(self.points)
@@ -103,3 +112,18 @@ class QuadTree:
             self.ne.draw(screen)
             self.se.draw(screen)
             self.sw.draw(screen)
+    
+    def delete(self):
+        if self.leaf == False:
+            self.nw.delete()
+            self.ne.delete()
+            self.se.delete()
+            self.sw.delete()
+        self.points.clear()
+
+    def traverse(self):
+        if self.leaf == False:
+            self.nw.traverse()
+            self.ne.traverse()
+            self.se.traverse()
+            self.sw.traverse()
