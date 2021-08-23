@@ -45,8 +45,10 @@ class Rectangle:
         pygame.draw.rect(screen, color, pygame.Rect(self.west, self.north, 2*self.width-1, 2*self.height-1), stroke)
 
 class QuadTree(Tree):
-    def __init__(self, boundary,  capacity = 2):
+    def __init__(self, boundary,  capacity=2, depth=0, limit_depth=2):
         self.name = "quad"
+        self.depth = depth
+        self.limit_depth = limit_depth
         self.boundary = boundary
         self.capacity = capacity
         self.points = []
@@ -63,10 +65,13 @@ class QuadTree(Tree):
             self.points.append(point)
             return True
         
-        if not self.divided:
-            self.divide()
+        if self.depth < self.limit_depth and not self.divided:
+            self.divide(self.capacity, self.depth+1, self.limit_depth)
 
-        if self.nw.insert(point):
+        if self.depth == self.limit_depth:
+            self.points.append(point)
+            return True
+        elif self.nw.insert(point):
             return True
         elif self.ne.insert(point):
             return True
@@ -78,23 +83,23 @@ class QuadTree(Tree):
         return False
     
 
-    def divide(self):
+    def divide(self, capacity, depth, limit_depth):
         center_x = self.boundary.center.x
         center_y = self.boundary.center.y
         new_width = self.boundary.width / 2
         new_height = self.boundary.height / 2
 
         nw = Rectangle(Center(center_x - new_width, center_y - new_height), new_width, new_height)
-        self.nw = QuadTree(nw)
+        self.nw = QuadTree(nw, capacity=capacity, depth=depth, limit_depth=limit_depth)
 
         ne = Rectangle(Center(center_x + new_width, center_y - new_height), new_width, new_height)
-        self.ne = QuadTree(ne)
+        self.ne = QuadTree(ne, capacity=capacity, depth=depth, limit_depth=limit_depth)
 
         sw = Rectangle(Center(center_x - new_width, center_y + new_height), new_width, new_height)
-        self.sw = QuadTree(sw)
+        self.sw = QuadTree(sw, capacity=capacity, depth=depth, limit_depth=limit_depth)
 
         se = Rectangle(Center(center_x + new_width, center_y + new_height), new_width, new_height)
-        self.se = QuadTree(se)
+        self.se = QuadTree(se, capacity=capacity, depth=depth, limit_depth=limit_depth)
 
         self.divided = True
         self.leaf = False

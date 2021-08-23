@@ -10,22 +10,26 @@ height = 600
 max_v = 2
 new_points = 5
 limit_time = 10
+q_capacity = 5
+q_limit_depth = 5
+g_cell_size = 10
 
 pygame.init()
-screen = pygame.display.set_mode((width,height))
-clock = pygame.time.Clock()
-
 pygame.display.set_caption("Test")
 domain = Rectangle(Center(width/2, height/2), width/2, height/2)
+qtree = QuadTree(domain, capacity=q_capacity, limit_depth=q_limit_depth)
+grid = Grid(domain, cell=g_cell_size)
+
+# change the structure: grid/qtree
+tree = grid
+
+screen = pygame.display.set_mode((width,height))
+clock = pygame.time.Clock()
 points = []
 fps = []
 insert_time = []
 run = True
 
-qtree = QuadTree(domain)
-grid = Grid(domain, cell=100)
-
-tree = grid
 def agents(num):
     for i in range(num):
         x, y, xv, yv = randint(1,width), randint(1,height), randint(1,max_v), randint(1,max_v)
