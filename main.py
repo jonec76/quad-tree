@@ -9,10 +9,12 @@ width = 1000
 height = 600
 max_v = 2
 new_points = 5
+limit_time = 10
 
 pygame.init()
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
+
 pygame.display.set_caption("Test")
 domain = Rectangle(Center(width/2, height/2), width/2, height/2)
 points = []
@@ -37,6 +39,7 @@ def output(datas, title):
     plt.savefig(title + ".png")
     plt.clf()
 
+start_ticks=pygame.time.get_ticks() #starter tick
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -45,6 +48,12 @@ while run:
             output(insert_time, tree.name+"_insert")
             run = False
             break
+    seconds=(pygame.time.get_ticks()-start_ticks)/1000 #calculate how many seconds
+    if seconds > limit_time: # if more than 10 seconds close the game
+        print("... Output the fps result ...")
+        output(fps[11:], tree.name+"_fps")
+        output(insert_time, tree.name+"_insert")
+        break
     if not run:
         break
     screen.fill((0,0,0))
