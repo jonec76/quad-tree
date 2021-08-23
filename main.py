@@ -12,7 +12,7 @@ new_points = 5
 limit_time = 10
 q_capacity = 5
 q_limit_depth = 5
-g_cell_size = 10
+g_cell_size = 100
 
 pygame.init()
 pygame.display.set_caption("Test")
@@ -32,8 +32,13 @@ run = True
 
 def agents(num):
     for i in range(num):
-        x, y, xv, yv = randint(1,width), randint(1,height), randint(1,max_v), randint(1,max_v)
-        x, y, xv, yv = randint(1,width), randint(1,height), randint(1,max_v), randint(1,max_v)
+        if randint(0, 1) == 0:
+            coef = -1
+        else:
+            coef = 1
+
+        x, y, xv, yv = randint(1,width), randint(1,height), coef*randint(1,max_v), coef*randint(1,max_v)
+        x, y, xv, yv = randint(1,width), randint(1,height), coef*randint(1,max_v), coef*randint(1,max_v)
         points.append(Point(x, y, xv, yv))
 
 def output(datas, title):
