@@ -22,7 +22,7 @@ class Point:
         if self.y > height or self.y < 0:
             self.y_velocity = -self.y_velocity
 
-class Center:
+class Center: # 專門給 Rectangle 用的 
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -37,7 +37,7 @@ class Rectangle:
         self.north = center.y - height
         self.south = center.y + height
 
-    def containsPoint(self, point):
+    def containsPoint(self, point): # 用來檢查這個點是否在 cell 裡面
         return (self.west <= point.x < self.east and 
                 self.north <= point.y < self.south)
     
@@ -57,18 +57,18 @@ class QuadTree(Tree):
 
     def insert(self, point):
         # if the point is in the range of current quadTree
-        if not self.boundary.containsPoint(point):
+        if not self.boundary.containsPoint(point): # 如果這個點不在目前這個 cell 的話，就不考慮要 insert 他
             return False
         
         # if has not reached capcaity
-        if len(self.points) < self.capacity:
+        if len(self.points) < self.capacity: # 要是 cell 還有空間可以新增點，則新增
             self.points.append(point)
             return True
         
-        if self.depth < self.limit_depth and not self.divided:
+        if self.depth < self.limit_depth and not self.divided: # 如果目前這個 cell 還沒有被切割過，則切割（因為每個 cell 只能被切割一次，所以才會有這個條件）
             self.divide(self.capacity, self.depth+1, self.limit_depth)
 
-        if self.depth == self.limit_depth:
+        if self.depth == self.limit_depth: # 如果已經達到限制深度了，那就沒有 sub tree，所有的 point 都要新增到這一層
             self.points.append(point)
             return True
         elif self.nw.insert(point):
@@ -102,7 +102,7 @@ class QuadTree(Tree):
         self.se = QuadTree(se, capacity=capacity, depth=depth, limit_depth=limit_depth)
 
         self.divided = True
-        self.leaf = False
+        self.leaf = False # 如果還可以分割，表示目前這個 cell 不是 leaf
 
     def __len__(self):
         count = len(self.points)
@@ -120,17 +120,10 @@ class QuadTree(Tree):
             self.se.draw(screen)
             self.sw.draw(screen)
     
-    def clear(self):
+    def clear(self): # 用來將目前的整個樹清除
         if self.leaf == False:
             self.nw.clear()
             self.ne.clear()
             self.se.clear()
             self.sw.clear()
         self.points.clear()
-
-    def traverse(self):
-        if self.leaf == False:
-            self.nw.traverse()
-            self.ne.traverse()
-            self.se.traverse()
-            self.sw.traverse()

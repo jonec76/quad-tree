@@ -8,9 +8,9 @@ import time
 width = 1000
 height = 600
 max_v = 2
-new_points = 5
-limit_time = 10
-q_capacity = 5
+new_points = 5 # 每個 frame 新增多少點數
+limit_time = 10 # program 執行時間
+q_capacity = 5 
 q_limit_depth = 5
 g_cell_size = 100
 
@@ -41,7 +41,7 @@ def agents(num):
         x, y, xv, yv = randint(1,width), randint(1,height), coef*randint(1,max_v), coef*randint(1,max_v)
         points.append(Point(x, y, xv, yv))
 
-def output(datas, title):
+def output(datas, title): # 將結果輸出成圖片
     plt.xlabel("frame")
     plt.ylabel(title)
     plt.plot(list(range(len(datas))), datas) # 從 11 開始取是因為 fps 前 10 個 frame 都是 0，這在官方文件有記載
@@ -58,7 +58,7 @@ while run:
             run = False
             break
     seconds=(pygame.time.get_ticks()-start_ticks)/1000 #calculate how many seconds
-    if seconds > limit_time: # if more than 10 seconds close the game
+    if seconds > limit_time: # if more than limit_time seconds close the game
         print("... Output the fps result ...")
         output(fps[11:], tree.name+"_fps")
         output(insert_time, tree.name+"_insert")
@@ -69,12 +69,12 @@ while run:
 
     fps.append(int(clock.get_fps()))
 
-    for point in points:
+    for point in points: # 讓所有的點都移動
         point.move(width, height)
     
     agents(new_points)
 
-    start = time.time()
+    start = time.time() # 記錄下 insert 所有點數的時間
     for point in points:
         point.draw(screen)
         tree.insert(point)

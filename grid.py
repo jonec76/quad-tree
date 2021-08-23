@@ -13,14 +13,16 @@ class Grid(Tree):
         self.width_size = int(width / self.cell) 
         self.height_size = int(height / self.cell) 
         self.grid_size = self.width_size * self.height_size
-        for i in range(self.grid_size):
+        for i in range(self.grid_size): # 初始時需要將所有的空間都先新增好
             self.table.append([]) 
     
     def insert(self, point):
-        u = 13
+        u = 13 # 使用任意兩個質數
         v = 7
         x = point.x
         y = point.y
+
+        # hash function
         idx = ((math.floor(x/self.cell) * u) ^ (math.floor(y/self.cell) * v))%self.grid_size
         self.table[idx].append(point)
     
