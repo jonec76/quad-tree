@@ -2,6 +2,7 @@ import numpy as np
 import math
 import pygame
 from random import randint
+from tree import Tree
 
 class Point:
     def __init__(self, x, y, xv, yv):
@@ -43,8 +44,9 @@ class Rectangle:
     def draw(self, screen, color=(255,255,255), stroke=1):
         pygame.draw.rect(screen, color, pygame.Rect(self.west, self.north, 2*self.width-1, 2*self.height-1), stroke)
 
-class QuadTree:
+class QuadTree(Tree):
     def __init__(self, boundary,  capacity = 2):
+        self.name = "quad"
         self.boundary = boundary
         self.capacity = capacity
         self.points = []
@@ -113,12 +115,12 @@ class QuadTree:
             self.se.draw(screen)
             self.sw.draw(screen)
     
-    def delete(self):
+    def clear(self):
         if self.leaf == False:
-            self.nw.delete()
-            self.ne.delete()
-            self.se.delete()
-            self.sw.delete()
+            self.nw.clear()
+            self.ne.clear()
+            self.se.clear()
+            self.sw.clear()
         self.points.clear()
 
     def traverse(self):

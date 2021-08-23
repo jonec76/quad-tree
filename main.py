@@ -1,30 +1,34 @@
 import pygame
 from random import randint
 from quadtree import Point, Rectangle, QuadTree, Center
+from grid import Grid
 from matplotlib import pyplot as plt
 import time
 
-pygame.init()
 width = 1000
 height = 600
+max_v = 2
+new_points = 5
+
+pygame.init()
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
-max_v = 2
-running = True
-count = 0
+pygame.display.set_caption("Test")
+domain = Rectangle(Center(width/2, height/2), width/2, height/2)
 points = []
+fps = []
+insert_time = []
+run = True
 
+qtree = QuadTree(domain)
+grid = Grid(domain, cell=100)
+
+tree = grid
 def agents(num):
     for i in range(num):
         x, y, xv, yv = randint(1,width), randint(1,height), randint(1,max_v), randint(1,max_v)
         x, y, xv, yv = randint(1,width), randint(1,height), randint(1,max_v), randint(1,max_v)
         points.append(Point(x, y, xv, yv))
-
-pygame.display.set_caption("Test")
-domain = Rectangle(Center(width/2, height/2), width/2, height/2)
-qtree = QuadTree(domain)
-fps = []
-insert_time = []
 
 def output(datas, title):
     plt.xlabel("frame")
@@ -33,32 +37,35 @@ def output(datas, title):
     plt.savefig(title + ".png")
     plt.clf()
 
-while running:
+while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             print("... Output the fps result ...")
-            running = False
-            output(fps[11:], "fps")
-            output(insert_time, "insert")
+            output(fps[11:], tree.name+"_fps")
+            output(insert_time, tree.name+"_insert")
+            run = False
+            break
+    if not run:
+        break
+    screen.fill((0,0,0))
 
     fps.append(int(clock.get_fps()))
 
-    screen.fill((0,0,0))
     for point in points:
         point.move(width, height)
     
-    agents(5)
+    agents(new_points)
 
     start = time.time()
     for point in points:
-        # point.draw(screen)
-        qtree.insert(point)
+        point.draw(screen)
+        tree.insert(point)
     end = time.time()
     insert_time.append(end - start)
 
-    qtree.draw(screen)
+    tree.draw(screen)
+    tree.clear()
     clock.tick(60)
-    qtree.delete()
     pygame.time.wait(10)
     pygame.display.flip()
 pygame.QUIT
