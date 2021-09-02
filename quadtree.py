@@ -126,4 +126,6 @@ class QuadTree(Tree):
             self.ne.clear()
             self.se.clear()
             self.sw.clear()
+            self.leaf = True
+            self.divided = False
         self.points.clear()
