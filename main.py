@@ -8,8 +8,8 @@ import time
 width = 1000
 height = 600
 max_v = 2
-new_points = 200 # 每個 frame 新增多少點數
-limit_time = 100 # program 執行時間
+new_points = 5 # 每個 frame 新增多少點數
+limit_time = 10 # program 執行時間
 q_capacity = 5 
 q_limit_depth = 5
 g_cell_size = 100
@@ -21,7 +21,7 @@ qtree = QuadTree(domain, capacity=q_capacity, limit_depth=q_limit_depth)
 grid = Grid(domain, cell=g_cell_size)
 
 # change the structure: grid/qtree
-tree = qtree
+tree = grid
 
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
@@ -32,10 +32,10 @@ run = True
 
 def agents(num):
     for i in range(num):
-        # if randint(0, 1) == 0:
-        #     coef = -1
-        # else:
-        coef = 1
+        if randint(0, 1) == 0:
+            coef = -1
+        else:
+            coef = 1
 
         x, y, xv, yv = randint(1,width), randint(1,height), coef*randint(1,max_v), coef*randint(1,max_v)
         x, y, xv, yv = randint(1,width), randint(1,height), coef*randint(1,max_v), coef*randint(1,max_v)
@@ -49,8 +49,6 @@ def output(datas, title): # 將結果輸出成圖片
     plt.clf()
 
 start_ticks=pygame.time.get_ticks() #starter tick
-agents(new_points)
-
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -71,10 +69,11 @@ while run:
 
     fps.append(int(clock.get_fps()))
 
-    # 讓所有的點都移動
+    #讓所有的點都移動
     for point in points:
         point.move(width, height)
     
+    agents(new_points)
 
     start = time.time() # 記錄下 insert 所有點數的時間
     for point in points:
