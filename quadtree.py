@@ -41,8 +41,19 @@ class Rectangle:
         return (self.west <= point.x < self.east and 
                 self.north <= point.y < self.south)
     
+    def update(self, center):
+        self.center = center
+        self.west = center.x - self.width
+        self.east = center.x + self.width
+        self.north = center.y - self.height
+        self.south = center.y + self.height
+
+
     def draw(self, screen, color=(255,255,255), stroke=1):
         pygame.draw.rect(screen, color, pygame.Rect(self.west, self.north, 2*self.width-1, 2*self.height-1), stroke)
+
+    def intersect(self, q_domain):
+        return not (q_domain.west > self.east or q_domain.east < self.west or q_domain.north > self.south or q_domain.south < self.north)
 
 class QuadTree(Tree):
     def __init__(self, boundary,  capacity=2, depth=0, limit_depth=2):
@@ -126,4 +137,21 @@ class QuadTree(Tree):
             self.ne.clear()
             self.se.clear()
             self.sw.clear()
+            self.leaf = True
+            self.divided = False
         self.points.clear()
+
+    def query(self, q_domain, found):
+        
+        if(not self.boundary.intersect(q_domain)):
+            return 
+        else:
+            for p in self.points:
+                if q_domain.containsPoint(p):
+                    found.append(p)
+            
+            if self.divided:
+                self.nw.query(q_domain, found)
+                self.ne.query(q_domain, found)
+                self.sw.query(q_domain, found)
+                self.se.query(q_domain, found)
